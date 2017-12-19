@@ -12,6 +12,50 @@ For further information run
 
     tel --help
 
+## Input
+
+The `tel` program reads a set of formulas as input. Each formula has to be
+terminated with a `.`. Formulas of the following format are supported:
+
+- Atoms
+  - `p(t1,...,tn)`
+    - similar to what is supported in the input language of gringo
+    - the parenthesis are optional if `n` is zero
+- Boolean connectives
+  - `~ F`
+  - `F & G`
+  - `F | G`
+  - `F -> G`
+- Basic temporal connectives
+  - for the past
+    - `#previous F`
+    - `F #since G`
+    - `F #trigger G`
+  - for the future
+    - `#next F`
+    - `F #until G`
+    - `F #release G`
+- Derived temporal connectives (and formulas)
+  - for the past
+    - `#always- F`
+    - `#eventually- F`
+    - `#initial`
+    - `#previous^ F`
+  - for the future
+    - `#always+ F`
+    - `#eventually+ F`
+    - `#final`
+    - `#next^ F`
+- Disambiguation
+  - The grammar uses the following precedences (strongest first)
+    1. `~`, `#previous`, `#previous^`, `#next`, `#next^`, `#always+`,
+       `#always-`, `#eventually+`, `#eventually-`
+    2. `#since`, `#until`, `#release`, `#trigger`
+    3. `&`
+    4. `|`
+    5. `->`
+  - `(F)` (parenthesis have to be used when chaining unary connectives)
+
 ## Installation
 
 The package can be build using stack. To install stack go to
