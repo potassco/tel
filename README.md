@@ -6,7 +6,7 @@ A translator for temporal formulas.
 
 To translate a temporal formula to ASP and solve with clingo call
 
-    tel translate 3 < example.tel | clingo -Wnone 0
+    tel translate 4 < example.tel | clingo -Wnone 0
 
 For further information run
 
