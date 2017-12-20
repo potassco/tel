@@ -5,7 +5,7 @@
 #always+ (load -> #next^ loaded).
 #always+ (shoot & #previous loaded & ~fail -> unloaded).
 #always+ (#previous loaded & ~unloaded -> loaded).
-#always+ (#previous unloaded & ~loaded -> unloaded).
+#always+ (#previous unloaded & ~loaded -> unloaded). % blub
 
 % test
 #always+ (load & #previous loaded -> #false).

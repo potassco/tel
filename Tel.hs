@@ -192,6 +192,9 @@ numberValue = foldl (\ x -> ((10 * x) +) . fromIntegral . digitToInt) 0
 letterOrDigit :: Stream s m Char => ParsecT s u m Char
 letterOrDigit = oneOf $ ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ ['_']
 
+commentP :: Stream s m Char => ParsecT s u m ()
+commentP = spaces >> (skipMany $ char '%' >> manyTill anyChar (try endOfLine >> spaces))
+
 lexeme :: Stream s m Char => ParsecT s u m r -> ParsecT s u m r
 lexeme p = p <* commentP
 
@@ -255,9 +258,6 @@ formulaP = buildExpressionParser
             <|> reservedOp "#final" *> pure final
             <|> FormulaAtom <$> predicateP
             <|> charL '(' *> formulaP <* charL ')'
-
-commentP :: Stream s m Char => ParsecT s u m ()
-commentP = spaces >> (skipMany $ char '%' >> manyTill anyChar (try endOfLine >> spaces)) >> spaces
 
 theoryP :: Stream s m Char => ParsecT s u m Theory
 theoryP = Theory <$> (many (lexeme formulaP <* charL '.'))
