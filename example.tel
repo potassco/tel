@@ -1,0 +1,21 @@
+% generate
+#always+ (#next^ (shoot | load | wait)).
+
+% define
+#always+ (load -> #next^ loaded).
+#always+ (shoot & #previous loaded & ~fail -> unloaded).
+#always+ (#previous loaded & ~unloaded -> loaded).
+#always+ (#previous unloaded & ~loaded -> unloaded).
+
+% test
+#always+ (load & #previous loaded -> #false).
+
+% goal
+~(#eventually+ (loaded & shoot)) -> #false.
+% or
+%#always+ (~loaded | ~shoot) -> #false.
+% or
+% #always+ (#final & ~(#eventually- (loaded & shoot)) -> #false).
+
+% instance
+unloaded.

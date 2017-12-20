@@ -6,7 +6,7 @@ A translator for temporal formulas.
 
 To translate a temporal formula to ASP and solve with clingo call
 
-    tel translate 3 < formula | clingo 0
+    tel translate 3 < example.tel | clingo 0
 
 For further information run
 
@@ -55,6 +55,8 @@ terminated with a `.`. Formulas of the following format are supported:
     4. `|`
     5. `->`
   - `(F)` (parenthesis have to be used when chaining unary connectives)
+- Comments
+  - strings starting with '%' are ignored until the end of the line
 
 ## Installation
 

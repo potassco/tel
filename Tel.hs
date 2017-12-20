@@ -2,7 +2,7 @@
 
 module Main (main) where
 
-import Text.Parsec (Stream, ParsecT, ParseError, char, (<|>), optional, many1, digit, oneOf, spaces, try, string, notFollowedBy, (<?>), many, lower, option, sepBy, parse, eof)
+import Text.Parsec (Stream, ParsecT, ParseError, char, (<|>), optional, many1, digit, oneOf, spaces, try, string, notFollowedBy, (<?>), many, lower, option, sepBy, parse, eof, endOfLine, manyTill, anyChar, skipMany)
 import Text.Parsec.Expr (buildExpressionParser, Operator(..), Assoc(..))
 import Control.Monad
 import Control.Monad.State
@@ -193,7 +193,7 @@ letterOrDigit :: Stream s m Char => ParsecT s u m Char
 letterOrDigit = oneOf $ ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ ['_']
 
 lexeme :: Stream s m Char => ParsecT s u m r -> ParsecT s u m r
-lexeme p = p <* spaces
+lexeme p = p <* commentP
 
 charL :: Stream s m Char => Char -> ParsecT s u m Char
 charL = lexeme . char
@@ -256,11 +256,14 @@ formulaP = buildExpressionParser
             <|> FormulaAtom <$> predicateP
             <|> charL '(' *> formulaP <* charL ')'
 
+commentP :: Stream s m Char => ParsecT s u m ()
+commentP = spaces >> (skipMany $ char '%' >> manyTill anyChar (try endOfLine >> spaces)) >> spaces
+
 theoryP :: Stream s m Char => ParsecT s u m Theory
 theoryP = Theory <$> (many (lexeme formulaP <* charL '.'))
 
 parseTheory :: String -> Either ParseError Theory
-parseTheory text = parse (spaces *> lexeme theoryP <* eof) "" text
+parseTheory text = parse (commentP *> lexeme theoryP <* eof) "" text
 
 -- {{{1 normalization
 
@@ -599,7 +602,7 @@ tests =
     -- {{{2 Translating
     , testGroup "translating"
         [ testCase "empty" (testTranslate 3 "" [[]])
-        , testCase "atomic" $ do 
+        , testCase "atomic" $ do
             testTranslate 3 "#true." [[]]
             testTranslate 3 "#false." []
             testTranslate 3 "a." [["a(0)"]]
