@@ -626,14 +626,14 @@ tests =
             testTranslate 3 "a | b." [["a(0)"], ["b(0)"]]
             testTranslate 3 "a -> b. a." [["a(0)", "b(0)"]]
         , testCase "binary" $ do
-            testTranslate 3 "a #until b." [["a(0)", "a(1)", "a(2)", "b(3)"],["a(0)", "a(1)", "b(2)"],["a(0)", "b(1)"],["b(0)"]]
+            testTranslate 3 "a #until b." [["a(0)", "a(1)", "a(2)", "b(3)"], ["a(0)", "a(1)", "b(2)"], ["a(0)", "b(1)"], ["b(0)"]]
             testTranslate 3 "a #since b." [["b(0)"]]
             testTranslate 3 "a #trigger b." [["b(0)"]]
-            testTranslate 3 "a #release b." [["a(0)", "b(0)"],["a(1)", "b(0)", "b(1)"],["a(2)", "b(0)", "b(1)", "b(2)"],["b(0)", "b(1)", "b(2)", "b(3)"]]
+            testTranslate 3 "a #release b." [["a(0)", "b(0)"], ["a(1)", "b(0)", "b(1)"], ["a(2)", "b(0)", "b(1)", "b(2)"], ["b(0)", "b(1)", "b(2)", "b(3)"]]
         , testCase "derived" $ do
             testTranslate 3 "#always+ a." [["a(0)", "a(1)", "a(2)", "a(3)"]]
             testTranslate 3 "#always- a." [["a(0)"]]
-            testTranslate 3 "#eventually+ a." [["a(0)"],["a(1)"],["a(2)"],["a(3)"]]
+            testTranslate 3 "#eventually+ a." [["a(0)"], ["a(1)"], ["a(2)"], ["a(3)"]]
             testTranslate 3 "#eventually- a." [["a(0)"]]
             testTranslate 4 (unlines
                 [ "% generate"
