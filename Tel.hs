@@ -631,22 +631,33 @@ tests =
             testTranslate 3 "a #trigger b." [["b(0)"]]
             testTranslate 3 "a #release b." [["a(0)", "b(0)"],["a(1)", "b(0)", "b(1)"],["a(2)", "b(0)", "b(1)", "b(2)"],["b(0)", "b(1)", "b(2)", "b(3)"]]
         , testCase "derived" $ do
-            testTranslate 3 "#always+ a." [["a(0)","a(1)","a(2)","a(3)"]]
+            testTranslate 3 "#always+ a." [["a(0)", "a(1)", "a(2)", "a(3)"]]
             testTranslate 3 "#always- a." [["a(0)"]]
             testTranslate 3 "#eventually+ a." [["a(0)"],["a(1)"],["a(2)"],["a(3)"]]
             testTranslate 3 "#eventually- a." [["a(0)"]]
-            -- Note: does only make sense with infinite traces
-            testTranslate 3 (unlines
-                [ "#always+ (load -> #next loaded)."
-                , "#always+ (load & #previous loaded -> #false)."
-                , "#always+ (shoot & #previous loaded & ~fail -> unloaded)."
-                , "#always+ (#previous loaded & ~unloaded -> loaded)."
-                , "#always+ (#previous unloaded & ~loaded -> unloaded)."
-                , "#always+ (#next (shoot | load | wait))."
-                , "#always+ (#next (shoot & load -> #false))."
-                , "#always+ (#next (shoot & wait -> #false))."
-                , "#always+ (#next (wait & load -> #false))."
-                ]) []
+            testTranslate 4 (unlines
+                [ "% generate"
+                , "#next^ (#always+ (shoot | load | wait))."
+                , ""
+                , "% define"
+                , "#next^ (#always+ (load -> loaded))."
+                , "#next^ (#always+ (shoot & #previous loaded & ~fail -> unloaded))."
+                , "#next^ (#always+ (#previous loaded & ~unloaded -> loaded))."
+                , "#next^ (#always+ (#previous unloaded & ~loaded -> unloaded))."
+                , ""
+                , "% test"
+                , "#next^ (#always+ (load & #previous loaded -> #false))."
+                , ""
+                , "% if the gun was shot two times without being loaded there will be a failure"
+                , "#always+ (shoot & #always- unloaded & #previous (#eventually- shoot) -> #eventually+ fail)."
+                , "% select traces where the failure leads to a missed shot"
+                , "% (requires a plan length of 4 to trigger)"
+                , "% shoot -> shoot -> load -> shoot"
+                , "#always+ (~loaded | ~shoot) -> #false."
+                , ""
+                , "% instance"
+                , "unloaded."
+                ]) [["fail(4)", "load(3)", "loaded(3)", "loaded(4)", "shoot(1)", "shoot(2)", "shoot(4)", "unloaded(0)", "unloaded(1)", "unloaded(2)"]]
         ]
     -- }}}2
     ]
