@@ -1,21 +1,21 @@
 % generate
-#always+ (#next^ (shoot | load | wait)).
+#next^ (#always+ (shoot | load | wait)).
 
 % define
-#always+ (load -> #next^ loaded).
-#always+ (shoot & #previous loaded & ~fail -> unloaded).
-#always+ (#previous loaded & ~unloaded -> loaded).
-#always+ (#previous unloaded & ~loaded -> unloaded). % blub
+#next^ (#always+ (load -> loaded)).
+#next^ (#always+ (shoot & #previous loaded & ~fail -> unloaded)).
+#next^ (#always+ (#previous loaded & ~unloaded -> loaded)).
+#next^ (#always+ (#previous unloaded & ~loaded -> unloaded)).
 
 % test
-#always+ (load & #previous loaded -> #false).
+#next^ (#always+ (load & #previous loaded -> #false)).
 
-% goal
-~(#eventually+ (loaded & shoot)) -> #false.
-% or
-%#always+ (~loaded | ~shoot) -> #false.
-% or
-% #always+ (#final & ~(#eventually- (loaded & shoot)) -> #false).
+% if the gun was shot two times without being loaded there will be a failure
+#always+ (shoot & #always- unloaded & #previous (#eventually- shoot) -> #eventually+ fail).
+% select traces where the failure leads to a missed shot
+% (requires a plan length of 4 to trigger)
+% shoot -> shoot -> load -> shoot
+#always+ (~loaded | ~shoot) -> #false.
 
 % instance
 unloaded.
